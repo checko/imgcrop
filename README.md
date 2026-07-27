@@ -1,61 +1,92 @@
 # Image Cropper
 
-A Linux desktop image-cropping application built with Electron and ImageMagick. It provides a simple visual workflow for opening an image, drawing a crop selection, refining it with corner handles, and saving numbered crops beside the original file.
+A compact desktop image cropper written in Rust. It uses a native desktop window—without Node.js, npm, Electron, Chromium, or ImageMagick at runtime—and performs crop operations directly on the decoded pixels in memory.
 
 ![Image Cropper icon](assets/imgcrop.svg)
 
 ## Features
 
-- Open images through the native **Open File** dialog.
-- Open files by dragging and dropping them onto the window.
-- Crop by drawing a rectangle, dragging the selection, or adjusting any of its four corners.
-- Save crops as `namecrop1.ext`, `namecrop2.ext`, and so on, without overwriting existing files.
-- Open common ImageMagick-supported formats, including HEIC/HEIF, PNG, JPEG, WebP, TIFF, GIF, BMP, AVIF, and SVG.
-- Install a per-user application-panel launcher on Linux.
+- Native Linux and Windows desktop application.
+- Native file picker and drag-and-drop opening.
+- Rectangular crop selection: draw a new region, drag it to move it, or adjust any of its four corner handles.
+- Direct in-process crop algorithm—no external `convert` command.
+- Numbered output names: `imagecrop1.ext`, `imagecrop2.ext`, and so on.
+- JPEG, PNG, GIF, WebP, BMP, TIFF, ICO, and AVIF support through Rust crates.
+- HEIC/HEIF support through the `libheif` codec runtime. Linux and Windows installer scripts bundle the runtime libraries alongside the compiled application. HEIC and HEIF crops save as JPEG for broad compatibility.
 
-> The local ImageMagick backend used by this project can read HEIC/HEIF. If it cannot encode HEIC/HEIF on the system, crops from those source files are saved as JPEG.
+## Build and run
 
-## Requirements
+### Linux
 
-- Linux
-- Node.js and npm
-- ImageMagick, including the format delegates required for the images you intend to open
-
-## Development
-
-Install dependencies and start the application:
+Requirements: a Rust toolchain, a C/C++ compiler, `pkg-config`, the `libheif` development package, and the normal graphics development packages required by the window system.
 
 ```bash
-npm install
-npm start
+cargo run
 ```
 
-Run the smoke tests:
+Build an optimized binary:
 
 ```bash
-npm test
+cargo build --release
 ```
 
-## Install in the application panel
+### Windows
 
-Install Image Cropper for the current user:
+Requirements: the Rust MSVC toolchain, Visual Studio Build Tools with C++ support, CMake, and [vcpkg](https://github.com/microsoft/vcpkg).
 
-```bash
-./scripts/install.sh
+Install the HEIC codec dependency once in vcpkg:
+
+```powershell
+vcpkg install libheif:x64-windows
+$env:VCPKG_ROOT = 'C:\path\to\vcpkg'
+$env:VCPKGRS_DYNAMIC = '1'
+cargo run --release
 ```
 
-The installer creates:
+Build an optimized executable:
 
-- `~/.local/share/applications/com.imgcrop.ImageCropper.desktop`
-- `~/.local/share/icons/hicolor/scalable/apps/imgcrop.svg`
-- `~/.local/bin/imgcrop`
+```powershell
+cargo build --release
+```
 
-You can then launch **Image Cropper** from your desktop environment’s application panel.
+## Install
 
-To remove this user-level launcher integration while preserving the project directory and dependencies:
+The install scripts build the release binary if needed, then install it for the current user. End users run the compiled binary and bundled runtime files—they do not need Node.js or npm.
+
+### Linux application panel
 
 ```bash
-./scripts/uninstall.sh
+./scripts/install-linux.sh
+```
+
+This installs the executable under `~/.local/share/imgcrop`, adds an `imgcrop` launcher in `~/.local/bin`, and creates a desktop entry in `~/.local/share/applications`.
+
+To remove it:
+
+```bash
+./scripts/uninstall-linux.sh
+```
+
+### Windows Start menu
+
+From PowerShell:
+
+```powershell
+.\scripts\install-windows.ps1
+```
+
+The script copies `target\release\imgcrop.exe` to `%LOCALAPPDATA%\Programs\Image Cropper`, copies vcpkg runtime DLLs when `VCPKG_ROOT` is configured, and creates an **Image Cropper** Start-menu shortcut.
+
+To remove it:
+
+```powershell
+.\scripts\uninstall-windows.ps1
+```
+
+## Tests
+
+```bash
+cargo test
 ```
 
 ## License

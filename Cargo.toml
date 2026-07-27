@@ -1,0 +1,18 @@
+[package]
+name = "imgcrop"
+version = "0.2.0"
+edition = "2024"
+description = "A compact native Rust image cropper"
+license = "MIT"
+
+[dependencies]
+eframe = { version = "0.35", default-features = false, features = ["default_fonts", "glow", "x11", "wayland"] }
+image = { version = "0.25", default-features = false, features = ["avif", "bmp", "gif", "ico", "jpeg", "png", "tiff", "webp"] }
+libheif-rs = { version = "2.7", default-features = false, features = ["image", "v1_17"] }
+rfd = "0.16"
+
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1
+panic = "abort"

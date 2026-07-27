@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Cropper</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand"><span class="brand-icon">✣</span> Image Cropper</div>
+      <div class="header-actions">
+        <button id="open-button" class="button button-secondary">Open File</button>
+        <button id="save-button" class="button button-primary" disabled>Save Crop</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="empty-state" class="empty-state" aria-label="Open an image">
+        <div class="empty-icon">▣</div>
+        <h1>Crop any image</h1>
+        <p>Drop an image here, or choose a file from your computer.</p>
+        <button id="empty-open-button" class="button button-primary">Open File</button>
+        <p class="file-types">HEIC, PNG, JPG, WebP, TIFF, GIF, BMP, AVIF, and more</p>
+      </section>
+
+      <section id="editor" class="editor hidden">
+        <aside class="sidebar">
+          <div class="file-card">
+            <span class="label">CURRENT IMAGE</span>
+            <strong id="file-name">—</strong>
+            <span id="image-size" class="muted">—</span>
+          </div>
+          <div class="instructions">
+            <span class="label">HOW TO CROP</span>
+            <p>Drag on the image to make a new selection. Drag its corners to fine-tune it.</p>
+          </div>
+          <button id="replace-button" class="button button-secondary button-full">Open another file</button>
+        </aside>
+
+        <div id="image-stage" class="image-stage" aria-label="Image crop editor">
+          <div id="canvas-wrap" class="canvas-wrap">
+            <img id="image" draggable="false" alt="Selected image" />
+            <div id="crop-box" class="crop-box hidden">
+              <span class="handle nw" data-corner="nw"></span>
+              <span class="handle ne" data-corner="ne"></span>
+              <span class="handle sw" data-corner="sw"></span>
+              <span class="handle se" data-corner="se"></span>
+            </div>
+          </div>
+          <p class="stage-hint">Click and drag to select an area</p>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status"></div>
+    <script src="renderer.js"></script>
+  </body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "imgcrop",
+  "version": "1.0.0",
+  "description": "A simple desktop image cropper with broad format support",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "electron": "^37.2.5"
+  }
+}

@@ -1,12 +1,53 @@
 #![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
 
-use std::path::{Path, PathBuf};
+use std::{
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 
-use eframe::egui::{self, Color32, Pos2, Rect, Sense, Stroke, StrokeKind, Vec2};
+use eframe::egui::{
+    self, Color32, FontData, FontDefinitions, FontFamily, Pos2, Rect, Sense, Stroke, StrokeKind,
+    Vec2,
+};
 use image::{DynamicImage, GenericImageView, ImageReader};
 
 const HANDLE_RADIUS: f32 = 7.0;
 const MIN_CROP: f32 = 0.01;
+
+/// Adds the Windows Traditional Chinese UI font as a fallback for filenames and status text.
+///
+/// Egui's bundled fonts do not contain CJK glyphs. Microsoft JhengHei is included with
+/// Traditional-Chinese Windows installations; KaiU provides a compatible fallback.
+#[cfg(target_os = "windows")]
+fn configure_windows_fonts(ctx: &egui::Context) {
+    let Some(font_bytes) = [r"C:\Windows\Fonts\msjh.ttc", r"C:\Windows\Fonts\kaiu.ttf"]
+        .into_iter()
+        .find_map(|path| std::fs::read(path).ok())
+    else {
+        return;
+    };
+
+    let font_name = "traditional-chinese".to_owned();
+    let mut fonts = FontDefinitions::default();
+    fonts.font_data.insert(
+        font_name.clone(),
+        Arc::new(FontData::from_owned(font_bytes)),
+    );
+    fonts
+        .families
+        .entry(FontFamily::Proportional)
+        .or_default()
+        .push(font_name.clone());
+    fonts
+        .families
+        .entry(FontFamily::Monospace)
+        .or_default()
+        .push(font_name);
+    ctx.set_fonts(fonts);
+}
+
+#[cfg(not(target_os = "windows"))]
+fn configure_windows_fonts(_ctx: &egui::Context) {}
 
 fn main() -> eframe::Result<()> {
     // Registers HEIC/HEIF and AVIF decoders supplied by the bundled libheif runtime.
@@ -23,7 +64,10 @@ fn main() -> eframe::Result<()> {
     eframe::run_native(
         "Image Cropper",
         options,
-        Box::new(|cc| Ok(Box::new(CropApp::new(cc)))),
+        Box::new(|cc| {
+            configure_windows_fonts(&cc.egui_ctx);
+            Ok(Box::new(CropApp::new(cc)))
+        }),
     )
 }
 

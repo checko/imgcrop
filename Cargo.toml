@@ -11,6 +11,9 @@ image = { version = "0.25", default-features = false, features = ["avif", "bmp",
 libheif-rs = { version = "2.7", default-features = false, features = ["image", "v1_17"] }
 rfd = "0.16"
 
+[build-dependencies]
+winres = "0.1"
+
 [profile.release]
 strip = true
 lto = true
